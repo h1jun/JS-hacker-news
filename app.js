@@ -6,19 +6,20 @@ const content = document.createElement('div');
 const NEWS_URL = 'https://api.hnpwa.com/v0/news/1.json';
 const CONTENT_URL = 'https://api.hnpwa.com/v0/item/@id.json'; // id값은 클릭한 컨텐츠에 따라 다르기 때문에 여기서는 마킹만 해놓는다.
 
-ajax.open('GET', NEWS_URL, false); 
-ajax.send();
+function getData(url) {
+    ajax.open('GET', url, false); 
+    ajax.send();
 
-const newsFeed = JSON.parse(ajax.response); 
+    return JSON.parse(ajax.response);
+}
+
+const newsFeed = getData(NEWS_URL); 
 const ul = document.createElement('ul');
 
 window.addEventListener('hashchange', function() {
     const id = location.hash.substr(1); // #이후 문자열만 추출
 
-    ajax.open('GET', CONTENT_URL.replace('@id', id), false);
-    ajax.send();
-
-    const newsContent = JSON.parse(ajax.response);
+    const newsContent = getData( CONTENT_URL.replace('@id', id), false);
     const title = document.createElement('h1');
 
     title.innerHTML = newsContent.title;
@@ -27,16 +28,17 @@ window.addEventListener('hashchange', function() {
 });
 
 for(let i = 0; i < 10; i++) {
-    const li = document.createElement('li');
-    const a = document.createElement('a');
+    const div = document.createElement('div');
     
-    // <li><a>title</a></li>
-    a.href = `#${newsFeed[i].id}`;
-    a.innerHTML = `${newsFeed[i].title} (${newsFeed[i].comments_count})`;
-    
-    a.addEventListener('click', function() {})
-    li.appendChild(a);
-    ul.appendChild(li);
+    div.innerHTML = `
+    <li>
+        <a href="#${newsFeed[i].id}">
+            ${newsFeed[i].title} (${newsFeed[i].comments_count})
+        </a>
+    </li>
+    `;
+
+    ul.appendChild(div.firstElementChild);
 }
 
 container.appendChild(ul);
